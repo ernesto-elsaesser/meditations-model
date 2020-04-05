@@ -31,19 +31,13 @@ embedding_matrix = np.load('matrix.npy')
 vocab_size = embedding_matrix.shape[0]
 
 model = Sequential()
-embedding_layer = Embedding(vocab_size,
-                            EMBED_DIM,
-                            weights=[embedding_matrix],
-                            input_length=SEQ_LEN,
-                            trainable=False)
-model.add(GRU(UNITS, return_sequences=True,
-                        stateful=True,
-                        dropout=0.1))
+model.add(Embedding(vocab_size, EMBED_DIM, weights=[embedding_matrix], input_length=SEQ_LEN, batch_input_shape=[1, None], trainable=False))
+model.add(GRU(UNITS, return_sequences=True, stateful=True, dropout=0.1))
 model.add(Dense(vocab_size))
 
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 print(model.summary())
 
-model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 
 checkpointer = ModelCheckpoint(
     filepath='weights-{epoch:02d}.hdf5',
